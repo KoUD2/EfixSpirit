@@ -1,22 +1,9 @@
 const { Telegraf, Markup } = require('telegraf')
 const LocalSession = require('telegraf-session-local')
 require('dotenv').config()
-const fs = require('fs')
 
 const token = process.env.TELEGRAM_TOKEN
 const bot = new Telegraf(token)
-
-bot.use(new LocalSession({ database: 'session_db.json' }).middleware())
-
-function logSessionData() {
-	fs.readFile('session_db.json', 'utf8', (err, data) => {
-		if (err) {
-			console.error('Ошибка при чтении session_db.json:', err)
-		} else {
-			console.log('Текущие данные сессии:', JSON.parse(data))
-		}
-	})
-}
 
 const effectsForImages = [
 	'размытие в движении',
@@ -172,7 +159,6 @@ function initializeStatistics(ctx) {
 }
 
 bot.start(ctx => {
-	logSessionData()
 	initializeStatistics(ctx)
 	ctx.session.stats.startCommandCount += 1
 
@@ -214,7 +200,6 @@ bot.hears('Идеи для монтажа', ctx => {
 })
 
 bot.action('inspire', ctx => {
-	logSessionData()
 	initializeStatistics(ctx)
 	ctx.session.stats.inspireClickCount += 1
 	const currentCategory = ctx.session.category || effectsForImages
@@ -253,14 +238,8 @@ process.on('exit', () => {
 	console.log('Bot statistics on exit:', bot.context.session.stats)
 })
 
-const PORT = process.env.PORT || 3000
 bot
-	.launch({
-		webhook: {
-			domain: 'https://be139b90-354f-4507-aff0-11ac86382570.up.railway.app',
-			port: PORT,
-		},
-	})
+	.launch()
 	.then(() => console.log('Bot is running...'))
 	.catch(error => {
 		console.error('Error launching bot:', error)
