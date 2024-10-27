@@ -156,6 +156,7 @@ function initializeStatistics(ctx) {
 			imageReceivedCount: 0,
 		}
 	}
+	console.log('Session initialized:', ctx.session.stats)
 }
 
 bot.start(ctx => {
