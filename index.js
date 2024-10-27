@@ -142,6 +142,20 @@ const effectsForEditing = [
 
 bot.use(new LocalSession({ database: 'session_db.json' }).middleware())
 
+let globalStats = {
+	startCommandCount: 0,
+	buttonClickCounts: {
+		images: 0,
+		threeD: 0,
+		motion: 0,
+		editing: 0,
+	},
+	inspireClickCount: 0,
+	imageReceivedCount: 0,
+	gifReceivedCount: 0,
+	videoReceivedCount: 0,
+}
+
 function initializeStatistics(ctx) {
 	if (!ctx.session.stats) {
 		ctx.session.stats = {
@@ -162,6 +176,7 @@ function initializeStatistics(ctx) {
 bot.start(ctx => {
 	initializeStatistics(ctx)
 	ctx.session.stats.startCommandCount += 1
+	globalStats.startCommandCount += 1
 
 	ctx.reply(
 		'Привет! 🌟 Я твой бот для вдохновения. Выбери одну из категорий ниже, чтобы получить идеи!',
@@ -175,6 +190,7 @@ bot.start(ctx => {
 bot.hears('Идеи для картинок', ctx => {
 	initializeStatistics(ctx)
 	ctx.session.stats.buttonClickCounts.images += 1
+	globalStats.buttonClickCounts.images += 1
 	ctx.session.category = effectsForImages
 	sendNewEffectMessage(ctx, effectsForImages)
 })
@@ -182,6 +198,7 @@ bot.hears('Идеи для картинок', ctx => {
 bot.hears('Идеи для 3D', ctx => {
 	initializeStatistics(ctx)
 	ctx.session.stats.buttonClickCounts.threeD += 1
+	globalStats.buttonClickCounts.threeD += 1
 	ctx.session.category = effectsFor3D
 	sendNewEffectMessage(ctx, effectsFor3D)
 })
@@ -189,6 +206,7 @@ bot.hears('Идеи для 3D', ctx => {
 bot.hears('Идеи для моушена', ctx => {
 	initializeStatistics(ctx)
 	ctx.session.stats.buttonClickCounts.motion += 1
+	globalStats.buttonClickCounts.motion += 1
 	ctx.session.category = effectsForMotion
 	sendNewEffectMessage(ctx, effectsForMotion)
 })
@@ -196,6 +214,7 @@ bot.hears('Идеи для моушена', ctx => {
 bot.hears('Идеи для монтажа', ctx => {
 	initializeStatistics(ctx)
 	ctx.session.stats.buttonClickCounts.editing += 1
+	globalStats.buttonClickCounts.editing += 1
 	ctx.session.category = effectsForEditing
 	sendNewEffectMessage(ctx, effectsForEditing)
 })
@@ -203,6 +222,7 @@ bot.hears('Идеи для монтажа', ctx => {
 bot.action('inspire', ctx => {
 	initializeStatistics(ctx)
 	ctx.session.stats.inspireClickCount += 1
+	globalStats.inspireClickCount += 1
 	const currentCategory = ctx.session.category || effectsForImages
 	sendNewEffectMessage(ctx, currentCategory)
 	ctx.answerCbQuery()
@@ -211,7 +231,22 @@ bot.action('inspire', ctx => {
 bot.on('photo', ctx => {
 	initializeStatistics(ctx)
 	ctx.session.stats.imageReceivedCount += 1
+	globalStats.imageReceivedCount += 1
 	ctx.reply('Спасибо, что поделился! 😊')
+})
+
+bot.on('animation', ctx => {
+	initializeStatistics(ctx)
+	ctx.session.stats.imageReceivedCount += 1
+	globalStats.imageReceivedCount += 1
+	ctx.reply('Спасибо, что поделился! 🎉')
+})
+
+bot.on('video', ctx => {
+	initializeStatistics(ctx)
+	ctx.session.stats.imageReceivedCount += 1
+	globalStats.imageReceivedCount += 1
+	ctx.reply('Спасибо, что поделился! 🎥')
 })
 
 function sendNewEffectMessage(ctx, effectList) {
@@ -234,6 +269,19 @@ function selectRandomEffects(effectsArray, count) {
 	const shuffled = effectsArray.sort(() => 0.5 - Math.random())
 	return shuffled.slice(0, count)
 }
+
+bot.command('stats', ctx => {
+	ctx.reply(`Общая статистика:
+- Запуск команд: ${globalStats.startCommandCount}
+- Кнопка "Идеи для картинок": ${globalStats.buttonClickCounts.images}
+- Кнопка "Идеи для 3D": ${globalStats.buttonClickCounts.threeD}
+- Кнопка "Идеи для моушена": ${globalStats.buttonClickCounts.motion}
+- Кнопка "Идеи для монтажа": ${globalStats.buttonClickCounts.editing}
+- Кнопка "вдохновиться": ${globalStats.inspireClickCount}
+- Полученные изображения: ${globalStats.imageReceivedCount}
+- Полученные гифки: ${globalStats.gifReceivedCount}
+- Полученные видео: ${globalStats.videoReceivedCount}`)
+})
 
 process.on('exit', () => {
 	if (bot.context.session && bot.context.session.stats) {
