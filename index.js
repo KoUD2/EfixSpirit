@@ -6,6 +6,8 @@ const fs = require('fs')
 const token = process.env.TELEGRAM_TOKEN
 const bot = new Telegraf(token)
 
+bot.use(new LocalSession({ database: 'session_db.json' }).middleware())
+
 function logSessionData() {
 	fs.readFile('session_db.json', 'utf8', (err, data) => {
 		if (err) {
@@ -251,8 +253,14 @@ process.on('exit', () => {
 	console.log('Bot statistics on exit:', bot.context.session.stats)
 })
 
+const PORT = process.env.PORT || 3000
 bot
-	.launch()
+	.launch({
+		webhook: {
+			domain: 'https://be139b90-354f-4507-aff0-11ac86382570.up.railway.app',
+			port: PORT,
+		},
+	})
 	.then(() => console.log('Bot is running...'))
 	.catch(error => {
 		console.error('Error launching bot:', error)
