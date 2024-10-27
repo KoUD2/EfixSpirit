@@ -1,12 +1,23 @@
 const { Telegraf, Markup } = require('telegraf')
 const LocalSession = require('telegraf-session-local')
 require('dotenv').config()
+const fs = require('fs')
 
 const token = process.env.TELEGRAM_TOKEN
 const bot = new Telegraf(token)
 
+function logSessionData() {
+	fs.readFile('session_db.json', 'utf8', (err, data) => {
+		if (err) {
+			console.error('Ошибка при чтении session_db.json:', err)
+		} else {
+			console.log('Текущие данные сессии:', JSON.parse(data))
+		}
+	})
+}
+
 const effectsForImages = [
-	'	размытие в движении',
+	'размытие в движении',
 	'яркие неоновые цвета',
 	'неоновые светящиеся контуры',
 	'инверсия цвета',
@@ -159,6 +170,7 @@ function initializeStatistics(ctx) {
 }
 
 bot.start(ctx => {
+	logSessionData()
 	initializeStatistics(ctx)
 	ctx.session.stats.startCommandCount += 1
 
@@ -200,6 +212,7 @@ bot.hears('Идеи для монтажа', ctx => {
 })
 
 bot.action('inspire', ctx => {
+	logSessionData()
 	initializeStatistics(ctx)
 	ctx.session.stats.inspireClickCount += 1
 	const currentCategory = ctx.session.category || effectsForImages
