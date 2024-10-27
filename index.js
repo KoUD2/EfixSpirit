@@ -235,7 +235,11 @@ function selectRandomEffects(effectsArray, count) {
 }
 
 process.on('exit', () => {
-	console.log('Bot statistics on exit:', bot.context.session.stats)
+	if (bot.context.session && bot.context.session.stats) {
+		console.log('Bot statistics on exit:', bot.context.session.stats)
+	} else {
+		console.log('Session stats are undefined.')
+	}
 })
 
 bot
