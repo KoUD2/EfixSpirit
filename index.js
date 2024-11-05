@@ -143,16 +143,16 @@ const effectsForEditing = [
 bot.use(new LocalSession({ database: 'session_db.json' }).middleware())
 
 let globalStats = {
-	startCommandCount: 0,
+	startCommandCount: 92,
 	buttonClickCounts: {
-		images: 0,
-		threeD: 0,
-		motion: 0,
-		editing: 0,
+		images: 120,
+		threeD: 20,
+		motion: 12,
+		editing: 17,
 	},
-	inspireClickCount: 0,
-	imageReceivedCount: 0,
-	gifReceivedCount: 0,
+	inspireClickCount: 41,
+	imageReceivedCount: 12,
+	gifReceivedCount: 1,
 	videoReceivedCount: 0,
 }
 
@@ -277,7 +277,7 @@ bot.command('stats', ctx => {
 - Кнопка "Идеи для 3D": ${globalStats.buttonClickCounts.threeD}
 - Кнопка "Идеи для моушена": ${globalStats.buttonClickCounts.motion}
 - Кнопка "Идеи для монтажа": ${globalStats.buttonClickCounts.editing}
-- Кнопка "вдохновиться": ${globalStats.inspireClickCount}
+- Кнопка "еще": ${globalStats.inspireClickCount}
 - Полученные изображения: ${globalStats.imageReceivedCount}
 - Полученные гифки: ${globalStats.gifReceivedCount}
 - Полученные видео: ${globalStats.videoReceivedCount}`)
